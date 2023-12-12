@@ -1,4 +1,5 @@
 const Users = require("../models/userModel")
+const Op = require("sequelize").Op;
 
 exports.create = async (req, res) => {
     data = {
@@ -21,7 +22,18 @@ exports.find = async (req, res) => {
         const page = (req.query.page) ? req.query.page : 1;
         let offset = (page - 1) * limit;
 
+        let whereClause = {}; // Initialize an empty object for the where clause
+
+        if (req.query.name) {
+            whereClause = {
+                name: {
+                    [Op.like]: `%${req.query.name}%`,
+                },
+            };
+        }
+        
         let UsersData = await Users.findAndCountAll({
+            where: whereClause, // Use the where clause based on the condition
             limit: limit,
             offset,
         });
